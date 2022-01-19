@@ -13,18 +13,20 @@ for file_name in file_names:
             new_entry['weight'] = float(dictionary['ontology/weight'])/1000
             new_entry['height'] = dictionary['ontology/height']
             labels = set(dictionary['http://www.w3.org/1999/02/22-rdf-syntax-ns#type_label'])
-            new_entry['sport'] = labels.intersection(sport_types)
+            new_entry['sport'] = list(labels.intersection(sport_types))
+            if len(new_entry['sport']) > 0: 
+                new_entry['sport'] = new_entry['sport'][0]
             if len(new_entry['sport']) == 0: 
                 for sport in sport_types: 
                     if sport in dictionary['title']: 
-                        new_entry['sport'] = {sport}
+                        new_entry['sport'] = sport
                     elif "http://purl.org/dc/elements/1.1/description" in keys and sport in dictionary['http://purl.org/dc/elements/1.1/description']:
-                        new_entry['sport'] = {sport}
+                        new_entry['sport'] = sport
             if len(new_entry['sport']) == 0: 
-                new_entry['sport'] = {'other'}
+                new_entry['sport'] = 'other'
             filtered_data.append(new_entry)
 
-with open('filtered_data2.csv', 'a') as file:
+with open('filtered_data3.csv', 'a') as file:
     file.write('Weight, Height, Type of Sportsman\n')
     for entry in filtered_data:
         file.write(f"{entry['weight']},{entry['height']}, {entry['sport']}\n")

@@ -27,6 +27,7 @@ ggplot(proportions) +
        y = 'Proportion of Total Athletes', 
        title = 'A Barplot Showing the Proportion of Total Athletes in Each BMI Classification') + 
   scale_y_continuous(labels = scales::label_percent())
+ggsave('overall_proportion.pdf')
 
 mean_bmi_per_sport <- athlete_data %>%
   group_by(Sport_Type) %>% 
@@ -42,6 +43,7 @@ ggplot(mean_bmi_per_sport) +
   theme(axis.text.x = element_text(angle = 90)) + 
   geom_hline(yintercept = 25) + 
   geom_hline(yintercept = 18.5) #talk to the teachers about if it is redundant 
+ggsave('mean_bmi_per_sport.pdf')
 
 proportion_per_sport <- athlete_data %>% 
   select(Sport_Type, Classification) %>%
@@ -52,7 +54,28 @@ proportion_per_sport <- athlete_data %>%
   mutate(Overweight = ifelse(is.na(Overweight), 0, Overweight)) %>%
   mutate(Underweight = ifelse(is.na(Underweight), 0, Underweight)) %>%
   mutate(proportion_overweight = Overweight/(Underweight+Healthy+Overweight+Obese)) %>% 
-  mutate(proportion_obese = Obese/(Underweight+Healthy+Overweight+Obese))
+  mutate(proportion_obese = Obese/(Underweight+Healthy+Overweight+Obese)) %>% 
+  mutate(proportion_unhealthy = (Underweight + Overweight+ Obese)/(Underweight + Healthy + Overweight + Obese)) 
 
-ggplot(proportion_per_sport, aes(fill=, y=, x=)) + 
-  geom_bar(position="stack", stat="identity")
+ggplot(proportion_per_sport, aes(y= proportion_unhealthy, x = reorder(Sport_Type, proportion_unhealthy))) + 
+  geom_bar(stat="identity") +
+  theme(axis.text.x = element_text(angle = 90)) + 
+  scale_y_continuous(labels = scales::label_percent())
+ggsave('unhealthy_per_sport.pdf')
+
+proportion_per_sport <- athlete_data %>% 
+  select(Sport_Type, Classification) %>%
+  group_by(Sport_Type, Classification) %>% 
+  summarise(number = n()) %>% 
+  pivot_wider(names_from = Classification, values_from = number) %>%
+  mutate(Obese = ifelse(is.na(Obese), 0, Obese)) %>%
+  mutate(Overweight = ifelse(is.na(Overweight), 0, Overweight)) %>%
+  mutate(Underweight = ifelse(is.na(Underweight), 0, Underweight)) %>%
+  mutate(proportion_over = (Overweight + Obese)/(Underweight+Healthy+Overweight+Obese)) %>% 
+  mutate(proportion_under = Underweight/(Underweight+Healthy+Overweight+Obese)) %>% 
+  pivot_longer(cols = c(proportion_over, proportion_under))
+
+ggplot(proportion_per_sport, aes(fill=name, y= value, x = Sport_Type)) + 
+  geom_bar(position="dodge", stat="identity") +
+  theme(axis.text.x = element_text(angle = 90)) 
+ggsave('over_or_under.pdf')
