@@ -26,7 +26,7 @@ for file_name in file_names:
                 new_entry['sport'] = 'other'
             filtered_data.append(new_entry)
 
-with open('filtered_data3.csv', 'a') as file:
+with open('filtered_data3.csv', 'w') as file:
     file.write('Weight, Height, Type of Sportsman\n')
     for entry in filtered_data:
         file.write(f"{entry['weight']},{entry['height']}, {entry['sport']}\n")
