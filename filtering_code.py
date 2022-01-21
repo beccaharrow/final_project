@@ -9,9 +9,7 @@ for file_name in file_names:
     for dictionary in current_data:
         new_entry = {}
         keys = dictionary.keys()
-        if 'ontology/weight' in keys and isinstance(dictionary['ontology/weight'], str) == True and 'ontology/height' in keys and 'athlete' in dictionary['http://www.w3.org/1999/02/22-rdf-syntax-ns#type_label']:
-            new_entry['weight'] = float(dictionary['ontology/weight'])/1000
-            new_entry['height'] = dictionary['ontology/height']
+        if 'athlete' in dictionary['http://www.w3.org/1999/02/22-rdf-syntax-ns#type_label']: 
             labels = set(dictionary['http://www.w3.org/1999/02/22-rdf-syntax-ns#type_label'])
             new_entry['sport'] = list(labels.intersection(sport_types))
             if len(new_entry['sport']) > 0: 
@@ -24,9 +22,15 @@ for file_name in file_names:
                         new_entry['sport'] = sport
             if len(new_entry['sport']) == 0: 
                 new_entry['sport'] = 'other'
+            if 'ontology/weight' in keys and isinstance(dictionary['ontology/weight'], str) == True and 'ontology/height' in keys:
+                new_entry['weight'] = float(dictionary['ontology/weight'])/1000
+                new_entry['height'] = dictionary['ontology/height']
+            else: 
+                new_entry['weight'] = None
+                new_entry['height'] = None
             filtered_data.append(new_entry)
 
-with open('filtered_data3.csv', 'w') as file:
+with open('athleteshw.csv', 'w') as file:
     file.write('Weight, Height, Type of Sportsman\n')
     for entry in filtered_data:
-        file.write(f"{entry['weight']},{entry['height']}, {entry['sport']}\n")
+        file.write(f"{entry['weight'] or ''},{entry['height'] or ''}, {entry['sport']}\n")
